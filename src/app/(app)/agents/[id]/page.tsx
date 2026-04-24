@@ -1,157 +1,119 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card"
+"use client"
+
+import { use } from "react"
 import { Button } from "@/components/ui/Button"
+import { motion } from "framer-motion"
 import {
   Zap,
-  TrendingUp,
-  BarChart3,
-  Shield,
-  PieChart,
   ArrowLeft,
-  Info,
-  BrainCircuit,
-  Target
+  Clock,
+  Target,
+  CheckCircle2
 } from "lucide-react"
 import Link from "next/link"
 
-export default async function AgentDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const agentName = id.charAt(0).toUpperCase() + id.slice(1)
+const agentData: Record<string, any> = {
+  sentinel: { name: "Alpha Sentinel", id: "#1001", strategy: "Trend", profit: "+12.4%", drawdown: "3.2%", winRate: "68%", risk: "Low" },
+  apex: { name: "Apex Trend", id: "#1002", strategy: "Momentum", profit: "+24.8%", drawdown: "8.5%", winRate: "54%", risk: "Med" },
+  vector: { name: "Vector Quant", id: "#1003", strategy: "Quant", profit: "+18.2%", drawdown: "5.1%", winRate: "62%", risk: "Low" },
+  horizon: { name: "Horizon Macro", id: "#1004", strategy: "Macro", profit: "+21.5%", drawdown: "6.2%", winRate: "58%", risk: "Med" }
+}
+
+export default function AgentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
+  const id = resolvedParams.id
+  const agent = agentData[id] || agentData.sentinel
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/agents"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Agents</Link>
-        </Button>
+    <div className="p-4 md:p-8 pt-20 lg:pt-8 space-y-8">
+      <div className="flex items-center justify-between">
+        <Link href="/agents" className="flex items-center text-xs font-black uppercase text-zinc-500 hover:text-white transition-colors tracking-widest">
+          <ArrowLeft className="mr-1 h-3 w-3" /> Back
+        </Link>
+        <Button className="font-bold h-9 px-6 rounded-full">Copy</Button>
       </div>
 
-      <div className="flex flex-col lg:flex-row justify-between items-start gap-8">
-        <div className="flex gap-6 items-center">
-           <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
-             <Zap className="h-8 w-8" />
-           </div>
-           <div>
-              <h1 className="text-4xl font-extrabold tracking-tight">Oracle {agentName}</h1>
-              <div className="flex items-center gap-4 mt-1">
-                 <span className="text-primary font-bold">Trend Following Strategy</span>
-                 <span className="text-muted-foreground text-sm">• Active for 14 months</span>
-              </div>
-           </div>
+      <div className="flex gap-4 items-center">
+        <div className="h-14 w-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+          <Zap className="h-7 w-7" />
         </div>
-        <div className="flex gap-4">
-           <Button variant="outline">Download Report</Button>
-           <Button variant="primary">Follow Agent</Button>
+        <div>
+          <h1 className="text-3xl font-black italic uppercase tracking-tighter">{agent.name}</h1>
+          <p className="text-[10px] font-black text-primary uppercase tracking-widest">{agent.strategy} STRATEGY</p>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
          {[
-           { label: "Total Profit", value: "+42.5%", color: "text-primary" },
-           { label: "Win Rate", value: "68%", color: "text-foreground" },
-           { label: "Profit Factor", value: "2.4", color: "text-foreground" },
-           { label: "Risk Score", value: "3/10", color: "text-primary" },
+           { label: "Return", value: agent.profit, color: "text-primary" },
+           { label: "Drawdown", value: agent.drawdown, color: "text-white" },
+           { label: "Win Rate", value: agent.winRate, color: "text-white" },
+           { label: "Risk", value: agent.risk, color: agent.risk === 'Low' ? 'text-primary' : 'text-amber-500' },
          ].map((stat, i) => (
-           <Card key={i} className="border-white/5 bg-secondary/50">
-              <CardContent className="pt-6">
-                 <div className="text-xs text-muted-foreground uppercase mb-1 font-bold">{stat.label}</div>
-                 <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-              </CardContent>
-           </Card>
+          <Card key={i} className="border-white/5 bg-zinc-900/50 rounded-2xl p-4">
+            <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-1">{stat.label}</p>
+            <div className={`text-xl font-black ${stat.color}`}>{stat.value}</div>
+          </Card>
          ))}
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-         {/* Performance Chart Placeholder */}
-         <Card className="lg:col-span-2 border-white/5 bg-secondary/50">
-            <CardHeader>
-               <CardTitle>Equity Curve</CardTitle>
-               <CardDescription>Performance of AI signals over time.</CardDescription>
-            </CardHeader>
-            <CardContent>
-               <div className="h-[300px] w-full bg-white/5 rounded-lg flex items-end p-4 gap-2">
-                  {/* Mock Chart Bars */}
-                  {[40, 60, 45, 70, 85, 65, 90, 100, 95, 110, 130, 120].map((h, i) => (
-                    <div key={i} className="flex-1 bg-primary/20 hover:bg-primary transition-colors rounded-t-sm" style={{ height: `${h}%` }} />
-                  ))}
-               </div>
-               <div className="flex justify-between mt-4 text-xs text-muted-foreground uppercase font-bold px-2">
-                  <span>Jan 2023</span>
-                  <span>Jul 2023</span>
-                  <span>Feb 2024</span>
-               </div>
-            </CardContent>
-         </Card>
+      <div className="space-y-6">
+        <Card className="border-white/5 bg-zinc-900/50 rounded-3xl p-6 overflow-hidden">
+          <h3 className="text-lg font-black italic uppercase mb-6">Equity Curve</h3>
+          <div className="h-48 w-full flex items-end gap-1 px-2">
+            {[30, 45, 40, 60, 55, 75, 70, 90, 85, 105, 120, 115, 140, 160].map((h, i) => (
+              <motion.div
+                key={i}
+                initial={{ height: 0 }}
+                animate={{ height: `${h}%` }}
+                className="flex-1 bg-primary/20 hover:bg-primary transition-colors rounded-t-sm"
+              />
+            ))}
+          </div>
+        </Card>
 
-         {/* AI Decision Explanation */}
-         <Card className="border-primary/20 bg-primary/5">
-            <CardHeader>
-               <div className="flex items-center gap-2 text-primary">
-                  <BrainCircuit className="h-5 w-5" />
-                  <CardTitle>AI Reasoning</CardTitle>
-               </div>
-               <CardDescription className="text-primary/70">How this agent makes decisions.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-               <div>
-                  <h4 className="text-sm font-bold flex items-center gap-2 mb-2">
-                     <Target className="h-4 w-4" /> Core Logic
-                  </h4>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                     The AI issued a BUY signal on NVIDIA due to a bullish MACD crossover, rising institutional volume, and positive earnings sentiment detected from 450+ financial news sources.
-                  </p>
-               </div>
-               <div className="pt-4 border-t border-primary/10">
-                  <h4 className="text-sm font-bold flex items-center gap-2 mb-2 text-amber-500">
-                     <Info className="h-4 w-4" /> Risk Assessment
-                  </h4>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                     Despite bullish indicators, macroeconomic tightening and semiconductor sector volatility increase downside risk to moderate.
-                  </p>
-               </div>
-            </CardContent>
-         </Card>
-      </div>
-
-      {/* Signal History Table */}
-      <Card className="border-white/5 bg-secondary/50">
-         <CardHeader>
-            <CardTitle>Signal History</CardTitle>
-            <CardDescription>Past performance record for Oracle {agentName}.</CardDescription>
-         </CardHeader>
-         <CardContent>
-            <table className="w-full text-sm">
-               <thead>
-                  <tr className="border-b border-white/5 text-left text-muted-foreground font-medium uppercase text-[10px] tracking-wider">
-                     <th className="pb-4">Ticker</th>
-                     <th className="pb-4">Signal</th>
-                     <th className="pb-4">Entry</th>
-                     <th className="pb-4">Exit</th>
-                     <th className="pb-4">Result</th>
+        <Card className="border-white/5 bg-zinc-900/50 rounded-3xl overflow-hidden">
+          <div className="p-6 border-b border-white/5">
+            <h3 className="text-lg font-black italic uppercase">Recent Trades</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-[10px] font-black text-zinc-600 uppercase tracking-widest border-b border-white/5">
+                  <th className="px-6 py-4">Asset</th>
+                  <th className="px-6 py-4">Side</th>
+                  <th className="px-6 py-4 text-right">Profit</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {[
+                  { i: "NVDA", a: "BUY", p: "+$242.10" },
+                  { i: "TSLA", a: "SELL", p: "+$85.40" },
+                  { i: "AAPL", a: "BUY", p: "-$12.50" },
+                ].map((row, idx) => (
+                  <tr key={idx} className="text-sm font-bold">
+                    <td className="px-6 py-4">{row.i}</td>
+                    <td className="px-6 py-4">
+                      <span className={row.a === 'BUY' ? 'text-primary' : 'text-red-500'}>{row.a}</span>
+                    </td>
+                    <td className={`px-6 py-4 text-right ${row.p.startsWith('+') ? 'text-primary' : 'text-red-500'}`}>
+                      {row.p}
+                    </td>
                   </tr>
-               </thead>
-               <tbody>
-                  {[
-                    { t: "AAPL", s: "BUY", en: "$182.40", ex: "$194.20", r: "+6.47%" },
-                    { t: "MSFT", s: "BUY", en: "$402.10", ex: "$415.80", r: "+3.41%" },
-                    { t: "TSLA", s: "SELL", en: "$192.50", ex: "$175.20", r: "+8.98%" },
-                    { t: "GOOGL", s: "HOLD", en: "$142.10", ex: "-", r: "0.00%" },
-                  ].map((row, i) => (
-                    <tr key={i} className="border-b border-white/5 last:border-0">
-                       <td className="py-4 font-bold">{row.t}</td>
-                       <td className="py-4">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${row.s === 'BUY' ? 'bg-primary/20 text-primary' : row.s === 'SELL' ? 'bg-red-500/20 text-red-500' : 'bg-muted text-muted-foreground'}`}>
-                             {row.s}
-                          </span>
-                       </td>
-                       <td className="py-4 text-muted-foreground">{row.en}</td>
-                       <td className="py-4 text-muted-foreground">{row.ex}</td>
-                       <td className={`py-4 font-bold ${row.r.startsWith('+') ? 'text-primary' : 'text-foreground'}`}>{row.r}</td>
-                    </tr>
-                  ))}
-               </tbody>
+                ))}
+              </tbody>
             </table>
-         </CardContent>
-      </Card>
+          </div>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+function Card({ children, className, ...props }: any) {
+  return (
+    <div className={`border border-white/5 bg-zinc-900/50 ${className}`} {...props}>
+      {children}
     </div>
   )
 }
